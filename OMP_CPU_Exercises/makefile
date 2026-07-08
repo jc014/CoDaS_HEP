@@ -1,0 +1,74 @@
+#
+#  USAGE:
+#     make          ... to build the program
+#     make test     ... to run the default test case
+#     make clean    ... to remove object and executable files
+#
+
+CC          = gcc-15
+CLINKER     = $(CC)
+OPTFLAGS    = -std=c11 -fopenmp -O3 
+LIBS        = -lm
+CFLAGS	    = $(OPTFLAGS)
+
+EXES= pi mandel mm_testbed pi_mc  pi_recur linked hist transpose jac_solv
+
+MM_OBJS  = mm_testbed.o mm_utils.o mm_ijk.o mm_tst_cases.o
+
+PMC_OBJS  = pi_mc.o random.o
+
+HIST_OBJS  = hist.o random.o
+
+JAC_SOLV_OBJS  = jac_solv.o mm_utils.o 
+
+all: $(EXES)
+
+mm_testbed: $(MM_OBJS) mm_utils.h
+	$(CLINKER) $(CFLAGS) -o mm_testbed $(MM_OBJS) $(LIBS)
+
+linked: linked.o 
+	$(CLINKER) $(OPTFLAGS) -o linked linked.o $(LIBS)
+
+pi: pi.o 
+	$(CLINKER) $(OPTFLAGS) -o pi pi.o $(LIBS)
+
+pi_recur: pi_recur.o 
+	$(CLINKER) $(OPTFLAGS) -o pi_recur pi_recur.o $(LIBS)
+
+mandel:  mandel.o 
+	$(CLINKER) $(OPTFLAGS) -o mandel mandel.o $(LIBS)
+
+pi_mc: $(PMC_OBJS) random.h
+	$(CLINKER) $(OPTFLAGS) -o pi_mc $(PMC_OBJS) $(LIBS)
+
+hist: $(HIST_OBJS) random.h
+	$(CLINKER) $(OPTFLAGS) -o hist $(HIST_OBJS) $(LIBS)
+
+jac_solv: $(JAC_SOLV_OBJS) mm_utils.h
+	$(CLINKER) $(CFLAGS) -o jac_solv $(JAC_SOLV_OBJS) $(LIBS)
+
+transpose: transpose.o
+	$(CLINKER) $(OPTFLAGS) -o transpose transpose.o $(LIBS)
+
+test: $(EXES)
+	./pi
+	./pi_mc
+	./pi_recur
+	./mandel
+	./mm_testbed
+	./linked
+	./hist
+	./jac_solv
+	./transpose
+
+clean:
+	rm -f $(EXES) *.o
+
+.SUFFIXES:
+.SUFFIXES: .c .cpp .o
+
+.c.o:
+	$(CC) $(CFLAGS) -c $<
+
+.cpp.o:
+	$(CC) $(CFLAGS) -c $<
